@@ -51,7 +51,7 @@ Notion을 Spec 허브로, GitHub를 코드 허브로 사용하는 AI 기반 개�
 
 ## 프로젝트 초기화 워크플로우
 
-### 올바른 4단계 워크플로우
+### 올바른 5단계 워크플로우
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -65,7 +65,10 @@ Notion을 Spec 허브로, GitHub를 코드 허브로 사용하는 AI 기반 개�
 │  3. notion-update-database × 3                              │
 │     └── is_inline: true                                     │
 ├─────────────────────────────────────────────────────────────┤
-│  4. 완료! (추가 작업 없음)                                  │
+│  4. notion-update-database × N                              │
+│     └── 불필요한 기본 필드 삭제 (Place, 날짜 등)            │
+├─────────────────────────────────────────────────────────────┤
+│  5. 완료! (추가 작업 없음)                                  │
 │     └── ⛔ replace_content 절대 금지                        │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -102,7 +105,13 @@ Notion을 Spec 허브로, GitHub를 코드 허브로 사용하는 AI 기반 개�
       {"name": "DB Schema", "color": "purple"},
       {"name": "System Design", "color": "orange"}
     ]}},
-    "Status": {"type": "status", "status": {}},
+    "Status": {"type": "select", "select": {"options": [
+      {"name": "Draft", "color": "gray"},
+      {"name": "Review", "color": "yellow"},
+      {"name": "Approved", "color": "blue"},
+      {"name": "In progress", "color": "orange"},
+      {"name": "Implemented", "color": "green"}
+    ]}},
     "Priority": {"type": "select", "select": {"options": [
       {"name": "Critical", "color": "red"},
       {"name": "High", "color": "orange"},
@@ -174,7 +183,27 @@ Notion을 Spec 허브로, GitHub를 코드 허브로 사용하는 AI 기반 개�
 }
 ```
 
-### 4단계: 완료!
+### 4단계: 불필요한 기본 필드 삭제
+
+Notion이 DB 생성 시 자동 추가하는 불필요한 필드를 삭제한다.
+
+**notion-fetch로 각 DB 스키마 확인 후, 스킬에 정의되지 않은 필드 삭제**
+
+```json
+{
+  "database_id": "<DB ID>",
+  "properties": {
+    "불필요한 필드명": null
+  }
+}
+```
+
+**삭제 대상 필드 예시**:
+- `Place` (위치)
+- `날짜` (별도 날짜 필드)
+- 기타 스킬 스키마에 정의되지 않은 필드
+
+### 5단계: 완료!
 
 **⛔ 추가 작업 없음** - 이 시점에서 프로젝트 초기화 완료
 
@@ -188,7 +217,7 @@ Notion을 Spec 허브로, GitHub를 코드 허브로 사용하는 AI 기반 개�
 └── 📝 Decisions (ADR) (inline, 원본, 스키마 ✓)
 ```
 
-### 5단계: GitHub 템플릿 준비
+### 6단계: GitHub 템플릿 준비
 
 ```
 /home/claude/[project-name]/
@@ -203,7 +232,7 @@ Notion을 Spec 허브로, GitHub를 코드 허브로 사용하는 AI 기반 개�
 
 템플릿 소스: [github-templates](assets/github-templates/)
 
-### 6단계: 결과 보고
+### 7단계: 결과 보고
 
 ```markdown
 ## ✅ 프로젝트 초기화 완료
@@ -320,6 +349,28 @@ Feature Spec을 작성하기 전에 확인할게요:
 - 구분선 추가
 - replace_content 사용
 - content 내 <database> 태그
+```
+
+### 구현 완료 후 기록 규칙
+
+Feature 구현이 완료되면 다음 규칙에 따라 기록한다:
+
+| 항목 | 기록 시점 | 이유 |
+|------|----------|------|
+| 🤖 AI Session | **자동 기록** | 작업 이력이므로 누락 방지 |
+| 📝 Decision (ADR) | **사용자 확인 후** | 중요한 기술 결정만 기록해야 의미 있음 |
+
+**AI Session 자동 기록 내용**:
+- 세션 제목 (작업 요약)
+- 목적, 컨텍스트 (관련 Spec 링크)
+- 주요 작업 내용
+- 결과물 요약
+- 후속 작업
+
+**Decision (ADR) 확인 질문**:
+```
+구현 중 기술적 의사결정이 있었나요? (예: 라이브러리 선택, 아키텍처 결정)
+기록할 ADR이 있다면 알려주세요. 없으면 "없음"이라고 해주세요.
 ```
 
 ---
